@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Doc Scraper</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(90deg, #4F46E5 0%, #7C3AED 100%);
+        }
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <div class="flex justify-center items-center mb-4">
+                <div class="gradient-bg p-3 rounded-full">
+                    <i class="fas fa-spider text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl font-bold ml-4 text-gray-800">API Doc Scraper</h1>
+            </div>
+            <p class="text-gray-600 max-w-2xl mx-auto">
+                Provide a URL to an API's documentation, and this tool will crawl through the pages, creating a comprehensive text file ready for use with your favorite LLM.
+            </p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+            <!-- URL Input Form -->
+            <div id="url-form" class="mb-8">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Enter API Documentation URL</h2>
+                <div class="flex">
+                    <input type="text" id="url-input" placeholder="https://platform.openai.com/docs/overview" 
+                        class="flex-grow px-4 py-3 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button id="scrape-button" class="gradient-bg text-white px-6 py-3 rounded-r-lg font-medium hover:opacity-90 transition-opacity">
+                        <i class="fas fa-search mr-2"></i>Scrape
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Example: https://platform.openai.com/docs/overview</p>
+            </div>
+
+            <!-- Progress Section (Hidden by default) -->
+            <div id="progress-section" class="hidden">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Scraping Progress</h2>
+                
+                <!-- Status Message -->
+                <div class="mb-4">
+                    <p id="status-message" class="text-gray-700">Initializing scraper...</p>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-4 mb-6">
+                    <div id="progress-bar" class="gradient-bg h-4 rounded-full text-xs text-center text-white" style="width: 0%"></div>
+                </div>
+                
+                <!-- Stats -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">URLs Found</p>
+                        <p id="total-urls" class="text-xl font-semibold">0</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">URLs Scraped</p>
+                        <p id="scraped-urls" class="text-xl font-semibold">0</p>
+                    </div>
+                </div>
+                
+                <!-- Animation -->
+                <div class="flex justify-center mb-6">
+                    <div id="loading-animation" class="pulse-animation">
+                        <i class="fas fa-spider text-indigo-600 text-4xl"></i>
+                    </div>
+                </div>
+                
+                <!-- Cancel Button -->
+                <button id="cancel-button" class="w-full py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
+                    Cancel
+                </button>
+            </div>
+
+            <!-- Results Section (Hidden by default) -->
+            <div id="results-section" class="hidden">
+                <div class="text-center mb-6">
+                    <div class="inline-block p-3 rounded-full bg-green-100 mb-4">
+                        <i class="fas fa-check text-green-500 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Scraping Complete!</h2>
+                    <p id="completion-message" class="text-gray-600 mt-2">Your documentation has been successfully scraped.</p>
+                </div>
+                
+                <div class="bg-gray-100 p-6 rounded-lg mb-6">
+                    <h3 class="font-semibold mb-2">Download Documentation</h3>
+                    <p class="text-gray-600 mb-4">Your scraped documentation is ready for download.</p>
+                    <a id="download-link" href="#" class="gradient-bg text-white py-2 px-6 rounded-lg inline-flex items-center hover:opacity-90 transition-opacity">
+                        <i class="fas fa-download mr-2"></i> Download File
+                    </a>
+                </div>
+                
+                <button id="new-scrape-button" class="w-full py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
+                    Scrape Another URL
+                </button>
+            </div>
+
+            <!-- Error Section (Hidden by default) -->
+            <div id="error-section" class="hidden">
+                <div class="text-center mb-6">
+                    <div class="inline-block p-3 rounded-full bg-red-100 mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Scraping Failed</h2>
+                    <p id="error-message" class="text-gray-600 mt-2">An error occurred during the scraping process.</p>
+                </div>
+                
+                <button id="retry-button" class="w-full py-2 px-4 gradient-bg text-white rounded-md hover:opacity-90 transition-opacity mb-4">
+                    Try Again
+                </button>
+                
+                <button id="error-new-scrape-button" class="w-full py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
+                    Try Different URL
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>API Doc Scraper - Powered by OpenAI and Jina AI</p>
+            <p class="mt-1">Use responsibly and in accordance with websites' terms of service</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const urlForm = document.getElementById('url-form');
+            const progressSection = document.getElementById('progress-section');
+            const resultsSection = document.getElementById('results-section');
+            const errorSection = document.getElementById('error-section');
+            const urlInput = document.getElementById('url-input');
+            const scrapeButton = document.getElementById('scrape-button');
+            const cancelButton = document.getElementById('cancel-button');
+            const newScrapeButton = document.getElementById('new-scrape-button');
+            const errorNewScrapeButton = document.getElementById('error-new-scrape-button');
+            const retryButton = document.getElementById('retry-button');
+            const progressBar = document.getElementById('progress-bar');
+            const statusMessage = document.getElementById('status-message');
+            const totalUrls = document.getElementById('total-urls');
+            const scrapedUrls = document.getElementById('scraped-urls');
+            const completionMessage = document.getElementById('completion-message');
+            const downloadLink = document.getElementById('download-link');
+            const errorMessage = document.getElementById('error-message');
+            const loadingAnimation = document.getElementById('loading-animation');
+            
+            let pollingInterval;
+            let currentUrl = '';
+            
+            // Start scraping
+            scrapeButton.addEventListener('click', function() {
+                currentUrl = urlInput.value.trim();
+                if (!currentUrl) {
+                    alert('Please enter a URL');
+                    return;
+                }
+                
+                // Show progress section
+                urlForm.classList.add('hidden');
+                progressSection.classList.remove('hidden');
+                resultsSection.classList.add('hidden');
+                errorSection.classList.add('hidden');
+                
+                // Reset progress
+                progressBar.style.width = '0%';
+                statusMessage.textContent = 'Initializing scraper...';
+                totalUrls.textContent = '0';
+                scrapedUrls.textContent = '0';
+                
+                // Start scraping
+                fetch('/scrape', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: currentUrl })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Start polling for progress
+                    pollingInterval = setInterval(checkProgress, 1000);
+                })
+                .catch(error => {
+                    showError('Failed to start scraping: ' + error.message);
+                });
+            });
+            
+            // Check progress
+            function checkProgress() {
+                fetch('/progress')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('No active scraping session');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update progress UI
+                    statusMessage.textContent = data.message;
+                    progressBar.style.width = data.progress + '%';
+                    totalUrls.textContent = data.total_urls;
+                    scrapedUrls.textContent = data.scraped_urls;
+                    
+                    // Check if complete
+                    if (data.status === 'completed') {
+                        clearInterval(pollingInterval);
+                        showResults(data.filename, data.message);
+                    }
+                    // Check if error
+                    else if (data.status === 'error') {
+                        clearInterval(pollingInterval);
+                        showError(data.message);
+                    }
+                })
+                .catch(error => {
+                    clearInterval(pollingInterval);
+                    showError('Failed to check progress: ' + error.message);
+                });
+            }
+            
+            // Show results
+            function showResults(filename, message) {
+                progressSection.classList.add('hidden');
+                resultsSection.classList.remove('hidden');
+                completionMessage.textContent = message;
+                downloadLink.href = '/download/' + filename;
+            }
+            
+            // Show error
+            function showError(message) {
+                progressSection.classList.add('hidden');
+                errorSection.classList.remove('hidden');
+                errorMessage.textContent = message;
+            }
+            
+            // New scrape
+            newScrapeButton.addEventListener('click', resetUI);
+            errorNewScrapeButton.addEventListener('click', resetUI);
+            
+            // Retry
+            retryButton.addEventListener('click', function() {
+                urlInput.value = currentUrl;
+                scrapeButton.click();
+            });
+            
+            // Reset UI
+            function resetUI() {
+                urlForm.classList.remove('hidden');
+                progressSection.classList.add('hidden');
+                resultsSection.classList.add('hidden');
+                errorSection.classList.add('hidden');
+                urlInput.value = '';
+                clearInterval(pollingInterval);
+            }
+            
+            // Cancel
+            cancelButton.addEventListener('click', function() {
+                clearInterval(pollingInterval);
+                resetUI();
+            });
+        });
+    </script>
+</body>
+</html>
