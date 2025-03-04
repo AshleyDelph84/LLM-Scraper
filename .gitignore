@@ -11,6 +11,7 @@ __pycache__/
 Agno-Framework/
 Crewai-Documentation/
 Openai-Swarm/
+.env/
 
 # Distribution / packaging
 dist/
