@@ -64,7 +64,7 @@ def get_filename_from_url(url):
         domain = domain_parts[1]
     else:
         domain = domain_parts[0]
-    return f"{domain}_docs.txt"
+    return f"{domain}_docs.md"
 
 def create_content_section(content, url, index):
     separator = "=" * 80

@@ -9,6 +9,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 Agno-Framework/
+Agno-Framework-Documentation/
 Crewai-Documentation/
 Openai-Swarm/
 
