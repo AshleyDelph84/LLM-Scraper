@@ -23,8 +23,8 @@ A powerful tool for scraping and collecting API documentation to use with Large 
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/API-Documentation-Scraper-for-LLMs.git
-   cd API-Documentation-Scraper-for-LLMs
+   git clone https://github.com/AshleyDelph84/LLM-Scraper.git
+   cd LLM-Scraper
    ```
 
 2. Install the required dependencies:
